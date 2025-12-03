@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<robot name="davinci_gym_lite">
+
+  <!-- ================= TOWER ================= -->
+  <link name="tower_link">
+    <visual>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="1.0" radius="0.1"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="1.0" radius="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- 固定：tower -> base -->
+  <joint name="tower_to_base" type="fixed">
+    <parent link="tower_link"/>
+    <child  link="base_link"/>
+    <!-- base_link 被抬到塔頂 -->
+    <origin xyz="0 0 1.0" rpy="0 0 0"/>
+
+    <!-- 沿 Z 軸上下 -->
+     <axis xyz="0 0 1"/>
+    <!-- ✅ tower 高度範圍（單位：公尺） -->
+    <limit lower="0.3" upper="1.2" effort="1000" velocity="0.2"/> 
+  </joint>
+
+  <!-- ================= BASE ================= -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.20" radius="0.08"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- ================= ARM ================= -->
+  <joint name="arm_yaw1" type="revolute">
+    <parent link="base_link"/>
+    <child  link="arm_1"/>
+    <origin xyz="0 0 0.25" rpy="0 1.57079632679 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.5708" upper="1.5708" effort="50" velocity="2.0"/>
+  </joint>
+
+  <link name="arm_1">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/p4_arm1.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <capsule length="0.60" radius="0.04"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_yaw2" type="revolute">
+    <parent link="arm_1"/>
+    <child  link="arm_2"/>
+    <origin xyz="0 0.58285 0" rpy="-3.14159 0 1.5707"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-2.8" upper="2.8" effort="50" velocity="2.0"/>
+  </joint>
+
+  <link name="arm_2">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/p4_arm2.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <capsule length="0.55" radius="0.035"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_yaw3" type="revolute">
+    <parent link="arm_2"/>
+    <child  link="arm_3"/>
+    <origin xyz="0.47985 0 -0.001"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-2.8" upper="2.8" effort="50" velocity="2.0"/>
+  </joint>
+
+  <link name="arm_3">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/p4_arm3.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <capsule length="0.40" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_roll" type="revolute">
+    <parent link="arm_3"/>
+    <child  link="arm_4"/>
+    <origin xyz="0.057 0 0.1982"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="-3.14159265358" upper="0" effort="30" velocity="2.0"/>
+  </joint>
+
+  <link name="arm_4">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/p4_arm4.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <capsule length="0.35" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_wrist_yaw" type="revolute">
+    <parent link="arm_4"/>
+    <child  link="tool_mount"/>
+    <origin xyz="0.3522 0 -0.117"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.8" upper="2.8" effort="30" velocity="2.0"/>
+  </joint>
+
+  <link name="tool_mount">
+    <visual>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- ================= INSTRUMENT ================= -->
+  <joint name="instrument_insertion" type="prismatic">
+    <parent link="tool_mount"/>
+    <child  link="instrument_house"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.15" upper="0.15" effort="20" velocity="0.3"/>
+  </joint>
+
+  <link name="instrument_house">
+    <visual>
+      <origin xyz="0.0525 0 0" rpy="0 3.14159 -1.5708"/>
+      <geometry>
+        <mesh filename="meshes/instruments/needle_driver_house.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.12" radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="instrument_roll" type="revolute">
+    <parent link="instrument_house"/>
+    <child  link="instrument_neck"/>
+    <origin xyz="0.0525 0 0"
+            rpy="3.14159 0 1.5708"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14"/>
+  </joint>
+
+  <link name="instrument_neck">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/instruments/needle_driver_neck.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.45" radius="0.004"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="instrument_pitch" type="revolute">
+    <parent link="instrument_neck"/>
+    <child  link="tool_tip"/>
+    <origin xyz="0 0 0.177"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="-1.2" upper="1.2"/>
+  </joint>
+
+  <link name="tool_tip">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/instruments/needle_driver_head.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.005"/>
+      </geometry>
+    </collision>
+  </link>
+
+</robot>
